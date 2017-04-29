@@ -9,7 +9,7 @@ BUILDING_DIR=$OUT_DIR/kernel_obj
 JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 DATE=`date +%m-%d-%H:%M`
 
-CROSS_COMPILER=/home/msdx321/workspace/android/toolchains/linaro-5.4.1/bin/aarch64-linux-gnu-
+CROSS_COMPILER=/home/skrimix/linaro-5.4.1/bin/aarch64-linux-gnu-
 
 ANYKERNEL_DIR=$ROOT_DIR/misc/anykernel2
 TEMP_DIR=$OUT_DIR/temp
@@ -36,9 +36,17 @@ FUNC_CLEAN()
 
 FUNC_COMPILE_KERNEL()
 {
+        if [ ! -f /$ROOT_DIR/arch/arm64/configs/$DEFCONFIG ]; then
+            FUNC_PRINT "Config not found. Build error"
+            exit 1
+        fi
 		FUNC_PRINT "Start Compiling Kernel"
 		make -C $ROOT_DIR O=$BUILDING_DIR $DEFCONFIG 
 		make -C $ROOT_DIR O=$BUILDING_DIR -j$JOB_NUMBER ARCH=arm64 CROSS_COMPILE=$CROSS_COMPILER
+        if [ ! -f /$BUILDING_DIR/arch/arm64/boot/Image.gz-dtb ]; then
+            FUNC_PRINT "Image.gz-dtb not found. Build error"
+            exit 1
+        fi
 		FUNC_PRINT "Finish Compiling Kernel"
 }
 
